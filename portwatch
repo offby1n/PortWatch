@@ -3,6 +3,7 @@ import socket
 import ipaddress
 import argparse
 import sys
+from pathlib import Path
 
 parser = argparse.ArgumentParser(
     description="PortWatch — a simple Python port scanner",
@@ -34,8 +35,17 @@ parser.add_argument(
     help="Connection timeout in seconds (default: 0.5)"
 )
 
+parser.add_argument(
+    "-s", "--save",
+    action="store_true",
+    help="Save open ports to a file"
+)
+
 args = parser.parse_args()
 
+flag = 0
+Ports = []
+file_dir = Path(__file__).parent
 
 try:
     local_ip = args.ip
@@ -64,12 +74,25 @@ try:
         try:
             Socks.settimeout(args.timeout)
             Socks.connect((local_ip, port))
+            flag = 1
             print(f"!==Port {port} is open==!")
+            Ports.append(port)
         except socket.timeout:
             print(f"Port {port} timed out.")
         except ConnectionRefusedError:
             pass
+        except socket.error as e:
+            print(f"Socket error on port {port}: {e}")
+        finally:
+            Socks.close()
     print("Scanning complete.")
+    if flag == 0:
+        print("No open ports found.")
+    elif args.save:
+        with open(file_dir / "Logs.txt", "w") as f:
+            for port in Ports:
+                f.write(f"{port}\n")
+        print(f"Open ports saved to Logs.txt at {file_dir}.")
 except KeyboardInterrupt:
     print("Exiting the program...")
     sys.exit()
