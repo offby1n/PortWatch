@@ -17,7 +17,7 @@ PortWatch tries to open a TCP connection to each port in turn. If the connection
 
 Install it so you can run it from anywhere:
 
-    git clone https://github.com/dimitrispapastamatis/PortWatch.git
+    git clone https://github.com/offby1n/PortWatch.git
     cd PortWatch
     bash install.sh
 
