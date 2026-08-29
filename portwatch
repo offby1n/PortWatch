@@ -3,6 +3,7 @@ import socket
 import ipaddress
 import argparse
 import sys
+from datetime import datetime
 from pathlib import Path
 
 parser = argparse.ArgumentParser(
@@ -45,7 +46,9 @@ args = parser.parse_args()
 
 flag = 0
 Ports = []
-file_dir = Path(__file__).parent
+data_dir = Path.home() / ".local" / "share" / "portwatch"
+data_dir.mkdir(parents=True, exist_ok=True)
+log_path = data_dir / "Logs.txt"
 
 try:
     local_ip = args.ip
@@ -89,10 +92,27 @@ try:
     if flag == 0:
         print("No open ports found.")
     elif args.save:
-        with open(file_dir / "Logs.txt", "w") as f:
-            for port in Ports:
-                f.write(f"{port}\n")
-        print(f"Open ports saved to Logs.txt at {file_dir}.")
+        sep = "====================================================\n"
+
+        new_block = ""
+        for port in Ports:
+            new_block += f"Port: {port} was open at {datetime.now()} — timeout {args.timeout}, ip {local_ip}\n"
+
+        if log_path.exists():
+            old_content = log_path.read_text()
+        else:
+            old_content = ""
+
+        blocks = [b for b in old_content.split(sep) if b.strip()]
+        kept = blocks[-2:] + [new_block]
+
+        with open(log_path, "w") as f:
+            for block in kept:
+                f.write(block)
+                f.write(sep)
+
+        print(f"Open ports saved to {log_path}")
+
 except KeyboardInterrupt:
     print("Exiting the program...")
     sys.exit()
