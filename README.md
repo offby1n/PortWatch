@@ -1,6 +1,6 @@
 # PortWatch
 
-A simple, pure-Python TCP port scanner you run from the command line.
+A simple, Python TCP port scanner you run from the command line.
 
 ## What it does
 
